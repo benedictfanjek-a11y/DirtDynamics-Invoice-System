@@ -18,6 +18,11 @@ if os.path.isdir(PERSISTENT_DATA_DIR) and os.access(PERSISTENT_DATA_DIR, os.W_OK
 else:
     DB_PATH = os.path.join(BASE_DIR, "dirt_dynamics.db")
 app = Flask(__name__)
+
+# Google Search Console ownership verification
+@app.route("/googleba99813f1d50c84c.html")
+def google_site_verification():
+    return send_file(os.path.join(APP_DIR, "googleba99813f1d50c84c.html"), mimetype="text/html")
 app.secret_key = os.environ.get("DD_SECRET_KEY", secrets.token_hex(32))
 
 COMPANY_DEFAULTS = {
