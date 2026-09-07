@@ -1,0 +1,47 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title">
+  <div><h1>Sold</h1><p>Items you have marked as sold.</p></div>
+  <a class="btn btn2" href="{{url_for('items')}}">← Parts &amp; Services</a>
+</div>
+
+<div class="grid">
+  <div class="stat blue"><div class="label">Items Sold</div><div class="value">{{rows|length}}</div><div class="sub">All recorded sales</div></div>
+  <div class="stat green profit-box"><div class="label">PROFIT</div><div class="value">R {{'%.2f'|format(profit)}}</div><div class="sub">Selling price less cost</div></div>
+  <div class="stat gold"><div class="label">Selling Price</div><div class="value">R {{'%.2f'|format(subtotal)}}</div><div class="sub">Before VAT</div></div>
+  <div class="stat dark"><div class="label">VAT</div><div class="value">R {{'%.2f'|format(vat)}}</div><div class="sub">VAT recorded</div></div>
+  <div class="stat dark"><div class="label">Total</div><div class="value">R {{'%.2f'|format(total)}}</div><div class="sub">Including VAT</div></div>
+</div>
+
+<div class="card">
+  <div class="history-tools"><input id="soldSearch" placeholder="Search sold items..."><input id="dateSearch" type="date"></div>
+  <div class="table-wrap"><table id="soldTable">
+    <thead><tr><th>Item</th><th>Date Sold</th><th>Selling Price</th><th>VAT %</th><th>VAT</th><th>Total</th><th>Profit</th><th>Action</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr>
+      <td><b>{{r.description}}</b></td>
+      <td>{{r.sold_date}}</td>
+      <td>R {{'%.2f'|format(r.selling_price)}}</td>
+      <td>{{'%.2f'|format(r.vat_rate)}}%</td>
+      <td>R {{'%.2f'|format(r.vat_amount)}}</td>
+      <td><b>R {{'%.2f'|format(r.total)}}</b></td>
+      <td><b class="profit-text">R {{'%.2f'|format(r.profit or 0)}}</b></td>
+      <td><form method="post" action="{{url_for('delete_sold',sold_id=r.id)}}" onsubmit="return confirm('Remove this sale and return the item to Parts & Services?');"><button class="icon-btn delete">⌫</button></form></td>
+    </tr>
+    {% endfor %}
+    {% if not rows %}<tr><td colspan="8" class="empty">No sold items yet. Go to Parts &amp; Services and press SOLD on an item.</td></tr>{% endif %}
+    </tbody>
+  </table></div>
+</div>
+<style>
+.history-tools{display:flex;gap:12px;margin-bottom:16px}.history-tools input{max-width:360px}.table-wrap{overflow:auto;border:1px solid #e1e7ec;border-radius:9px}.table-wrap table{min-width:850px}.icon-btn{width:34px;height:34px;padding:0;display:grid;place-items:center;border-radius:7px;border:1px solid #cfd8df}.delete{background:#ffe8e8;color:#c52323;cursor:pointer}.profit-text{color:#16885b}.empty{text-align:center;padding:35px;color:#7b8996}
+@media(max-width:600px){.history-tools{flex-direction:column}.history-tools input{max-width:none}}
+</style>
+<script>
+(function(){
+ const q=document.getElementById('soldSearch'),d=document.getElementById('dateSearch'),rs=[...document.querySelectorAll('#soldTable tbody tr')];
+ function f(){let s=(q.value||'').toLowerCase(),dt=d.value;rs.forEach(r=>{if(!r.cells[0])return;r.style.display=(r.innerText.toLowerCase().includes(s)&&(!dt||r.cells[1].innerText.trim()===dt))?'':'none'})}
+ q.addEventListener('input',f);d.addEventListener('change',f);
+})();
+</script>
+{% endblock %}

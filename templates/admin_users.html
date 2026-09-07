@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title"><div><h1>Administrator User Management</h1><p>Create and manage full-access Dirt Dynamics administrator accounts.</p></div></div>
+<div class="card">
+<h2 style="margin-top:0">Add Administrator</h2>
+<form method="post" action="{{url_for('admin_users_add')}}"><div class="row">
+<label>Name<input name="name" placeholder="e.g. John Smith"></label>
+<label>Email / Login<input name="email" type="email" required placeholder="admin@example.com"></label>
+<label>Password<input name="password" type="password" minlength="6" required placeholder="Minimum 6 characters"></label>
+</div><button>Create Administrator</button></form>
+</div>
+<div class="card"><h2 style="margin-top:0">Administrators</h2><table><thead><tr><th>Login</th><th>Created</th><th>Change Login / Password</th><th>Action</th></tr></thead><tbody>
+{% for u in rows %}<tr><td><b>{{u.username}}</b><br><small>FULL ADMIN ACCESS</small></td><td>{{u.created_at}}</td><td><form method="post" action="{{url_for('admin_users_update',user_id=u.id)}}" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px"><input name="email" type="email" value="{{u.username}}" required><input name="password" type="password" placeholder="New password (optional)"><button>Save</button></form></td><td>{% if u.id == session.get('user_id') %}<span class="muted">Current account</span>{% else %}<form method="post" action="{{url_for('admin_users_delete',user_id=u.id)}}" onsubmit="return confirm('Remove this administrator account?');"><button class="btn2">Remove</button></form>{% endif %}</td></tr>{% else %}<tr><td colspan="4">No administrators found.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

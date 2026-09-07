@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05090d">
+<link rel="manifest" href="/static/manifest.json?v=3">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/dirt-dynamics-iphone.png?v=3">
+<link rel="icon" type="image/png" sizes="180x180" href="/static/dirt-dynamics-iphone.png?v=3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dirt Dynamics">
+<title>Dirt Dynamics — Login</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#05090d;color:#fff}
+body{min-height:100vh;overflow:auto}
+.login-shell{min-height:100vh;display:grid;grid-template-columns:minmax(0,46%) minmax(420px,54%);background:#05090d}
+.hero{position:relative;min-height:100vh;background:#071019 url("/static/login-background.jpg") center/cover no-repeat;display:flex;flex-direction:column;justify-content:space-between;padding:55px 42px 38px;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,8,13,.12),rgba(2,8,13,.2) 55%,rgba(2,8,13,.72))}
+.hero-content,.hero-bottom{position:relative;z-index:2}
+.hero-logo{width:min(320px,70%);height:auto;display:block;margin:0 auto 18px;filter:drop-shadow(0 10px 18px #0008)}
+.hero-services{text-align:center;color:#f5a20a;font-size:15px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+.hero-slogan{text-align:center;margin-top:16px;font-size:14px;font-weight:700;letter-spacing:1.4px}
+.hero-bottom{font-size:14px;line-height:1.45;text-shadow:0 2px 7px #000}.hero-bottom strong{font-size:26px;display:block;line-height:1.1;margin-bottom:12px}
+.gold-line{width:92px;height:5px;background:#f39a08;margin-top:16px;border-radius:2px}
+.panel-wrap{display:grid;place-items:center;padding:42px;background:#071019}
+.login-panel{width:min(650px,100%);background:linear-gradient(145deg,#10171c,#080d11);border:1.5px solid #e89a08;border-radius:18px;padding:58px 48px 46px;box-shadow:0 25px 70px #000a}
+.welcome{text-align:center;letter-spacing:7px;color:#d8e0e7;font-size:15px;font-weight:600}
+.panel-brand{text-align:center;font-size:42px;font-weight:900;font-style:italic;margin:18px 0 6px;letter-spacing:-1px}
+.panel-brand .dirt{color:#f39a08}.panel-brand .dyn{color:#f3f5f7}
+.panel-services{text-align:center;color:#f39a08;font-size:15px;font-weight:900;letter-spacing:.4px}
+.panel-slogan{text-align:center;color:#f2f4f6;font-size:14px;letter-spacing:1.4px;margin-top:16px}
+.divider{height:1px;background:#59636b;margin:32px 0}
+.signin{text-align:center;color:#aeb8c2;font-size:15px;letter-spacing:1px;margin-bottom:25px}
+.field{position:relative;margin-bottom:16px}.field input{width:100%;height:58px;background:#151c21;border:1px solid #64707b;color:#fff;border-radius:10px;padding:0 48px 0 52px;font-size:16px;outline:none}.field input:focus{border-color:#f39a08;box-shadow:0 0 0 2px #f39a0825}
+.icon{position:absolute;left:17px;top:17px;font-size:23px;color:#f1f4f6;z-index:2}.eye{position:absolute;right:16px;top:17px;color:#e8edf1;font-size:22px;cursor:pointer;background:none;border:0;padding:0}
+.options{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:22px 0;color:#f3f4f6;font-size:14px}.remember{display:flex;align-items:center;gap:10px}.remember input{width:20px;height:20px;accent-color:#f39a08}.forgot{color:#f3a10b;text-decoration:none}
+.login-btn{width:100%;height:58px;border:0;border-radius:9px;background:linear-gradient(#ffad1b,#ed9406);color:#111;font-size:19px;font-weight:900;cursor:pointer;box-shadow:0 6px 18px #f39a0833}.login-btn:hover{filter:brightness(1.05)}
+.or{display:flex;align-items:center;gap:16px;color:#9ca7b0;justify-content:center;margin:26px 0}.or:before,.or:after{content:"";height:1px;background:#59636b;flex:1}
+.microsoft{width:100%;height:55px;border:1px solid #52606b;border-radius:9px;background:#151c21;color:#f5f7f8;font-size:15px;font-weight:700}
+.company{text-align:center;margin-top:70px;color:#e6ebef;font-size:14px}.company small{display:block;color:#8e9aa4;margin-top:8px}
+.version{text-align:right;color:#8e9aa4;font-size:11px;margin-top:35px}
+@media(max-width:950px){.login-shell{grid-template-columns:1fr}.hero{min-height:390px;padding:35px 25px}.hero-logo{width:240px}.hero-bottom{display:none}.panel-wrap{padding:25px 18px}.login-panel{padding:42px 28px 32px}.panel-brand{font-size:34px}}
+@media(max-width:600px){.hero{min-height:330px;background-position:center}.hero-services{font-size:11px}.hero-slogan{font-size:11px}.login-panel{border-radius:14px;padding:34px 18px}.panel-services{font-size:11px}.panel-slogan{font-size:11px}.company{margin-top:45px}.options{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="login-shell">
+<section class="hero">
+  <div class="hero-content">
+    <img class="hero-logo" src="/static/dirt-dynamics-logo.jpg" alt="Dirt Dynamics logo">
+    <div class="hero-services">EARTHMOVING • ENGINE REBUILDS • FIELD SERVICE</div>
+    <div class="hero-slogan">BUILT BY STRENGTH &nbsp; | &nbsp; DRIVEN BY EXCELLENCE</div>
+  </div>
+  <div class="hero-bottom">
+    <strong>Your Trusted Partner<br>in Earthmoving Solutions</strong>
+    <div class="gold-line"></div>
+  </div>
+</section>
+
+<section class="panel-wrap">
+  <div class="login-panel">
+    <div class="welcome">WELCOME TO</div>
+    <div class="panel-brand"><span class="dirt">DIRT</span> <span class="dyn">DYNAMICS</span></div>
+    <div class="panel-services">EARTHMOVING • ENGINE REBUILDS • FIELD SERVICE</div>
+    <div class="panel-slogan">BUILT BY STRENGTH &nbsp; | &nbsp; DRIVEN BY EXCELLENCE</div>
+    <div class="divider"></div>
+    <div class="signin">SIGN IN TO YOUR ACCOUNT</div>
+
+    <form method="post" autocomplete="on">
+      <div class="field"><span class="icon">✉</span><input type="email" name="username" placeholder="Email address" value="benedictfanjek@gmail.com" required autocomplete="username"></div>
+      <div class="field"><span class="icon">🔒</span><input id="password" type="password" name="password" placeholder="Password" required autocomplete="current-password"><button class="eye" type="button" id="toggle" aria-label="Show password">◉</button></div>
+      <div class="options">
+        <label class="remember"><input type="checkbox" checked> <span>Remember me</span></label>
+        <a class="forgot" href="#" onclick="return false">Forgot password?</a>
+      </div>
+      <button class="login-btn" type="submit">LOGIN &nbsp; →</button>
+    </form>
+
+    <div class="or"><span>OR</span></div>
+    <button class="microsoft" type="button" disabled>▦ &nbsp;&nbsp; Login with Microsoft</button>
+
+    <div class="company"><b>Dirt Dynamics (Pty) Ltd</b><small>Company Reg. No: 2026/549274/07 &nbsp; | &nbsp; Reference No: 9008177309</small></div>
+    <div class="version">v1.0.0</div>
+  </div>
+</section>
+</div>
+<script>
+const p=document.getElementById('password'),t=document.getElementById('toggle');
+t.addEventListener('click',()=>{p.type=p.type==='password'?'text':'password';t.textContent=p.type==='password'?'◉':'◎'});
+</script>
+</body></html>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-title"><div><h1>Backup &amp; Restore</h1><p>One complete Dirt Dynamics backup for your business data.</p></div></div>
+<div class="card">
+  <h2 style="margin-top:0">Create Complete Backup</h2>
+  <p class="muted">One file contains your saved Dirt Dynamics business data, including invoices, customers, inventory, sold items, employees, employee accounts, attendance, pay rates, categories and settings.</p>
+  <a class="btn" href="{{ url_for('backup') }}">⇩ DOWNLOAD COMPLETE BACKUP</a>
+</div>
+<div class="card">
+  <h2 style="margin-top:0">Restore Complete Backup</h2>
+  <p class="muted">Use this when moving to an updated version of the software or recovering your data. The system validates the backup and makes a safety copy of the current database before restoring.</p>
+  <form method="post" action="{{ url_for('restore_backup') }}" enctype="multipart/form-data" onsubmit="return confirm('Restore this complete Dirt Dynamics backup? The current business data will be replaced with the backup data. A safety copy will be made first.');">
+    <label>Choose Dirt Dynamics backup file (.ddbackup)<input type="file" name="backup_file" accept=".ddbackup,application/octet-stream" required></label>
+    <button class="success">↥ UPLOAD &amp; RESTORE BACKUP</button>
+  </form>
+</div>
+<div class="card"><b>Important:</b> The backup protects your business data. The application program/code is updated separately. Before installing an update, download one complete backup and keep it somewhere safe.</div>
+{% endblock %}

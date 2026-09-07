@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}<h1>Company Settings</h1><form method="post"><div class="card"><div class="row">
+<label>Company Name<input name="name" value="{{s.name}}"></label><label>Email<input name="email" value="{{s.email}}"></label>
+<label>Phone<input name="phone" value="{{s.phone}}"></label><label>Address<input name="address" value="{{s.address}}"></label>
+<label>Default VAT %<input name="vat" type="number" step="0.01" min="0" max="100" value="{{s.vat}}"><small class="muted">This becomes the default on new invoices; each invoice can be adjusted separately.</small></label><label>Payment Terms (days)<input name="terms" value="{{s.terms}}"></label>
+<label>Tagline<input name="tagline" value="{{s.tagline}}"></label><label>VAT Number<input name="vat_number" value="{{s.get('vat_number','')}}"></label>
+<label>Bank Name<input name="bank_name" value="{{s.bank_name}}"></label><label>Account Type<input name="account_type" value="{{s.account_type}}"></label>
+<label>Account Name<input name="account_name" value="{{s.account_name}}"></label><label>Account Number<input name="account_number" value="{{s.account_number}}"></label>
+<label>Branch Name<input name="branch_name" value="{{s.branch_name}}"></label><label>Branch Code<input name="branch_code" value="{{s.branch_code}}"></label>
+</div><button>Save Settings</button></div></form>
+<div class="card"><b>Security:</b> default login is admin / admin123. Change the application password before production deployment.</div>{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title">
+  <div><h1>Invoice History</h1><p>View, print or delete your invoices. Deleted invoices are hidden but their numbers are never reused.</p></div>
+  <a class="btn" href="{{url_for('new_invoice')}}">＋ Create New Invoice</a>
+</div>
+<div class="card">
+  <div class="history-tools">
+    <input id="invoiceSearch" placeholder="Search invoice number, customer or date...">
+    <select id="statusFilter"><option value="">All Statuses</option><option>PAID</option><option>UNPAID</option></select>
+  </div>
+  <div class="table-wrap"><table id="invoiceTable">
+    <thead><tr><th>Invoice No.</th><th>Customer</th><th>Date</th><th>Due Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for r,s,d,v,t in rows %}
+      <tr>
+        <td><b>{{r.number}}</b></td><td>{{r.customer}}</td><td>{{r.invoice_date}}</td><td>{{r.due_date}}</td>
+        <td>R {{'%.2f'|format(t)}}</td>
+        <td><span class="status {{'paid' if r.status=='PAID' else 'unpaid'}}">{{r.status}}</span></td>
+        <td class="actions">
+          <a class="icon-btn view" title="View invoice" href="{{url_for('view_invoice',iid=r.id)}}">◉</a>
+          <a class="icon-btn print" title="Print / Save PDF" target="_blank" href="{{url_for('print_invoice',iid=r.id)}}">⇩</a>
+          <form method="post" action="{{url_for('delete_invoice',iid=r.id)}}" onsubmit="return confirm('Delete {{r.number}}? The invoice will be hidden from history and its number will never be reused.');"><button class="icon-btn delete" title="Delete invoice">⌫</button></form>
+        </td>
+      </tr>
+    {% endfor %}
+    {% if not rows %}<tr><td colspan="7" class="empty">No active invoices have been created yet.</td></tr>{% endif %}
+    </tbody>
+  </table></div>
+  <div class="history-foot">Showing <b id="shownCount">{{rows|length}}</b> of <b>{{rows|length}}</b> active invoices</div>
+</div>
+<style>
+.history-tools{display:grid;grid-template-columns:minmax(260px,1fr) 190px;gap:12px;margin-bottom:18px}.table-wrap{overflow:auto;border:1px solid #e1e7ec;border-radius:9px}.table-wrap table{min-width:860px}.actions{display:flex;gap:6px;align-items:center}.actions form{margin:0}.icon-btn{width:34px;height:34px;padding:0;display:grid;place-items:center;border-radius:7px;text-decoration:none;border:1px solid #cfd8df;font-weight:900}.view{background:#edf5ff;color:#1771c8}.print{background:#e5f8ee;color:#087a4e}.delete{background:#ffe8e8;color:#c52323;cursor:pointer}.empty{text-align:center;padding:35px;color:#7b8996}.history-foot{margin-top:13px;color:#6f7d89;font-size:12px}
+@media(max-width:600px){.history-tools{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+ const q=document.getElementById('invoiceSearch'), f=document.getElementById('statusFilter'), rows=[...document.querySelectorAll('#invoiceTable tbody tr')];
+ function filter(){let n=0, text=(q.value||'').toLowerCase(), st=f.value; rows.forEach(r=>{if(!r.cells[0])return;let ok=r.innerText.toLowerCase().includes(text)&&(st===''||r.cells[5].innerText.trim()===st);r.style.display=ok?'':'none';if(ok)n++});document.getElementById('shownCount').textContent=n}
+ q.addEventListener('input',filter);f.addEventListener('change',filter);
+})();
+</script>
+{% endblock %}

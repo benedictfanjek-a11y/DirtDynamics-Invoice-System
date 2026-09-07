@@ -1,0 +1,24 @@
+{
+  "name": "Dirt Dynamics Invoice System",
+  "short_name": "Dirt Dynamics",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#111827",
+  "description": "Dirt Dynamics invoicing PWA",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/static/dirt-dynamics-iphone.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

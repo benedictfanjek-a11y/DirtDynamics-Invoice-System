@@ -1,0 +1,92 @@
+{% extends "base.html" %}{% block content %}
+<h1>New Invoice</h1>
+<form method="post" id="invoiceForm">
+<div class="card">
+  <div class="form-head"><div><h2 style="margin:0">Invoice Details</h2><div class="muted">Create a professional Dirt Dynamics invoice</div></div><div class="next-no">Next invoice: <b>automatic</b></div></div>
+  <div class="row">
+    <label>Customer *
+      <select name="customer_id" id="customer" required>
+        <option value="">Select customer</option>
+        {% for c in customers %}<option value="{{c.id}}">{{c.name}}{% if c.company %} — {{c.company}}{% endif %}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Status
+      <select name="status"><option>UNPAID</option><option>PAID</option></select>
+    </label>
+    <label>Invoice Date<input type="date" name="invoice_date" value="{{today}}"></label>
+    <label>Due Date<input type="date" name="due_date" value="{{due}}"></label>
+  </div>
+</div>
+
+<div class="card">
+  <div class="form-head"><div><h2 style="margin:0">Items & Services</h2><div class="muted">Choose a saved part/service or enter your own description.</div></div></div>
+  <div id="lines">
+    <div class="invoice-line">
+      <select class="item-select" aria-label="Saved item"><option value="">Saved part / service...</option>{% for x in items %}<option value="{{x.description|e}}" data-price="{{x.price}}">{{x.category_name or 'Uncategorised'}} — {{x.code or 'No part number'}} — {{x.description}} — R {{'%.2f'|format(x.price)}}</option>{% endfor %}</select>
+      <input name="description[]" placeholder="Description" required>
+      <input name="qty[]" type="number" step="0.01" min="0" value="1" placeholder="Qty">
+      <input name="price[]" class="price" type="number" step="0.01" min="0" value="0" placeholder="Unit price">
+      <div class="line-total">R 0.00</div>
+      <button type="button" class="remove-line btn2" aria-label="Remove line">×</button>
+    </div>
+  </div>
+  <button type="button" class="btn btn2" id="addLine">+ Add Item</button>
+</div>
+
+<div class="card">
+  <div class="row">
+    <label>Discount (R)<input name="discount" id="discount" type="number" step="0.01" min="0" value="0"></label>
+    <label>VAT % <span class="vat-help">(adjustable for this invoice)</span><input name="vat_rate" id="vatRate" type="number" step="0.01" min="0" max="100" value="{{company.vat|default('15')}}"></label>
+  </div>
+  <div class="live-total">
+    <div><span>Subtotal</span><b id="subtotal">R 0.00</b></div>
+    <div><span>Discount</span><b id="discountDisplay">R 0.00</b></div>
+    <div><span>VAT</span><b id="vatDisplay">R 0.00</b></div>
+    <div class="grand"><span>TOTAL</span><b id="total">R 0.00</b></div>
+  </div>
+  <label>Notes<textarea name="notes" rows="3" placeholder="Payment notes, job reference, condition, etc."></textarea></label>
+  <button class="success create-btn">Create Invoice</button>
+</div>
+</form>
+
+<script>
+(function(){
+ const root=document.getElementById('invoiceForm'), lines=document.getElementById('lines');
+ const money=n=>'R '+Number(n||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+ function wire(row){
+   const sel=row.querySelector('.item-select'), desc=row.querySelector('[name="description[]"]');
+   const qty=row.querySelector('[name="qty[]"]'), price=row.querySelector('.price'), total=row.querySelector('.line-total');
+   function calc(){const t=Math.max(0,Number(qty.value)||0)*Math.max(0,Number(price.value)||0); total.textContent=money(t); update();}
+   sel.addEventListener('change',()=>{if(sel.value){desc.value=sel.value;price.value=sel.options[sel.selectedIndex].dataset.price||0;calc();}});
+   [qty,price].forEach(x=>x.addEventListener('input',calc));
+   row.querySelector('.remove-line').addEventListener('click',()=>{if(lines.children.length>1){row.remove();update();}});
+   calc();
+ }
+ function update(){
+   let sub=0; document.querySelectorAll('.invoice-line').forEach(r=>{sub+=(Number(r.querySelector('[name="qty[]"]').value)||0)*(Number(r.querySelector('.price').value)||0)});
+   let dis=Math.max(0,Number(document.getElementById('discount').value)||0); dis=Math.min(dis,sub);
+   let rate=Math.min(100,Math.max(0,Number(document.getElementById('vatRate').value)||0));
+   let taxable=Math.max(0,sub-dis), vat=taxable*rate/100, grand=taxable+vat;
+   document.getElementById('subtotal').textContent=money(sub);
+   document.getElementById('discountDisplay').textContent=money(dis);
+   document.getElementById('vatDisplay').textContent=money(vat);
+   document.getElementById('total').textContent=money(grand);
+ }
+ document.getElementById('addLine').addEventListener('click',()=>{
+   const row=lines.firstElementChild.cloneNode(true);
+   row.querySelectorAll('input').forEach(i=>{if(i.name==='description[]')i.value='';else if(i.name==='qty[]')i.value='1';else i.value='0';});
+   row.querySelector('.item-select').selectedIndex=0; lines.appendChild(row); wire(row);
+ });
+ document.getElementById('discount').addEventListener('input',update);
+ document.getElementById('vatRate').addEventListener('input',update);
+ wire(lines.firstElementChild);
+})();
+</script>
+<style>
+.form-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:16px}.next-no{font-size:12px;color:#6b7280}
+.invoice-line{display:grid;grid-template-columns:1.25fr 1.7fr .65fr .9fr .8fr 44px;gap:8px;align-items:end;margin-bottom:10px}
+.invoice-line select,.invoice-line input{margin-top:0}.line-total{padding:10px 5px;font-weight:700;text-align:right}.remove-line{height:42px}
+.vat-help{font-size:11px;font-weight:400;color:#d97706}.live-total{margin:18px 0;border-top:1px solid #e5e7eb;padding-top:10px;margin-left:auto;max-width:420px}.live-total>div{display:flex;justify-content:space-between;padding:5px}.live-total .grand{background:#d97706;color:#fff;padding:12px;border-radius:4px;font-size:18px;margin-top:6px}
+@media(max-width:800px){.invoice-line{grid-template-columns:1fr 1fr}.invoice-line select,.invoice-line input:first-of-type{grid-column:1/-1}.line-total{grid-column:1}.remove-line{grid-column:2;width:44px}.form-head{flex-direction:column;align-items:flex-start}}
+</style>
+{% endblock %}

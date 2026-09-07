@@ -1,0 +1,76 @@
+{% extends "base.html" %}{% block content %}
+<div class="invoice">
+  <div class="no-print toolbar">
+    <a class="btn btn2" href="{{url_for('history')}}">← Invoice History</a>
+    <span></span>
+    <a class="btn" target="_blank" href="{{url_for("print_invoice",iid=inv.id)}}">Print / Save PDF</a>
+    {% if inv.status!='PAID' %}
+    <form method="post" action="{{url_for('mark_paid',iid=inv.id)}}"><button class="success">Mark Paid</button></form>
+    {% endif %}
+  </div>
+
+  <div class="doc-head">
+    <div class="brand-side">
+      <img class="invoice-logo" src="{{ url_for('static',filename='dirt-dynamics-logo.jpg') }}" alt="Dirt Dynamics logo">
+      <div>
+        <div class="brand">{{company.name}}</div>
+        <div class="subtitle">EARTHMOVING • ENGINE REBUILDS • FIELD SERVICE</div>
+        <div class="small">{{company.address}}</div>
+        <div class="small">{{company.email}}{% if company.phone %} • {{company.phone}}{% endif %}</div>
+      </div>
+    </div>
+    <div class="doc-title">
+      <h1>INVOICE</h1>
+      <div><b>Invoice No.</b> {{inv.number}}</div>
+      <div><b>Date</b> {{inv.invoice_date}}</div>
+      <div><b>Due Date</b> {{inv.due_date}}</div>
+      <div><b>Status</b> <span class="status">{{inv.status}}</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">BILL TO</div>
+  <div class="billto">
+    <b>{{inv.name}}</b>
+    {% if inv.company %}<br>{{inv.company}}{% endif %}
+    {% if inv.address %}<br>{{inv.address}}{% endif %}
+    {% if inv.phone %}<br>{{inv.phone}}{% endif %}
+    {% if inv.email %}<br>{{inv.email}}{% endif %}
+    {% if inv.vat_number %}<br>VAT No.: {{inv.vat_number}}{% endif %}
+  </div>
+
+  <table class="items-table">
+    <thead><tr><th>DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>AMOUNT</th></tr></thead>
+    <tbody>
+    {% for l in lines %}
+      <tr><td>{{l.description}}</td><td>{{l.qty}}</td><td>R {{'%.2f'|format(l.unit_price)}}</td><td>R {{'%.2f'|format(l.qty*l.unit_price)}}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <table>
+      <tr><td>Subtotal</td><td>R {{'%.2f'|format(subtotal)}}</td></tr>
+      <tr><td>Discount</td><td>R {{'%.2f'|format(discount)}}</td></tr>
+      <tr><td>VAT ({{inv.vat_rate}}%)</td><td>R {{'%.2f'|format(vat)}}</td></tr>
+      <tr class="grand"><td>TOTAL INVOICE</td><td>R {{'%.2f'|format(total)}}</td></tr>
+    </table>
+  </div>
+
+  {% if inv.notes %}
+  <div class="notes"><b>NOTES</b><br>{{inv.notes}}</div>
+  {% endif %}
+
+  <div class="section-title">BANKING DETAILS</div>
+  <div class="bank-grid">
+    <div><b>Account Type:</b> {{company.account_type}}<br><b>Account Name:</b> {{company.account_name}}<br><b>Account Number:</b> {{company.account_number}}</div>
+    <div><b>Bank Name:</b> {{company.bank_name}}<br><b>Branch Name:</b> {{company.branch_name}}<br><b>Branch Code:</b> {{company.branch_code}}</div>
+  </div>
+
+  <div class="signature">
+    <b>For Dirt Dynamics</b>
+    <div class="sigrow"><div>____________________________<br><small>Authorised representative</small></div><div>____________________<br><small>Date</small></div></div>
+  </div>
+
+  <div class="footerline"><span>Dirt Dynamics | Professional earthmoving equipment support</span><span>{{company.tagline}}</span></div>
+</div>
+{% endblock %}

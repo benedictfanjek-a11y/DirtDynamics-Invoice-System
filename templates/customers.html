@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}<h1>Customers</h1>
+<div class="card"><form method="post"><div class="row">
+<label>Name *<input name="name" required></label><label>Company<input name="company"></label>
+<label>Email<input name="email"></label><label>Phone<input name="phone"></label>
+<label>VAT Number<input name="vat_number"></label><label>Address<input name="address"></label></div>
+<label>Notes<textarea name="notes"></textarea></label><button>Add Customer</button></form></div>
+<div class="card"><table><tr><th>Name</th><th>Company</th><th>Phone</th><th>Email</th><th>Action</th></tr>
+{% for x in customers %}<tr><td>{{x.name}}</td><td>{{x.company}}</td><td>{{x.phone}}</td><td>{{x.email}}</td><td>
+<form method="post" action="{{url_for('delete_customer', cid=x.id)}}" onsubmit="return confirm('Delete this customer? This cannot be undone if the customer has no invoices.');" style="margin:0"><button type="submit" style="background:#b42318">DELETE</button></form>
+</td></tr>{% endfor %}</table></div>{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title"><div><h1>Employee Attendance</h1><p>Select an employee and month to review, correct and pay attendance.</p></div></div>
+<div class="card"><form method="get" style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,260px) auto;gap:12px;align-items:end"><label>EMPLOYEE<select name="employee_id" required><option value="">Select employee...</option>{% for e in employees %}<option value="{{e.id}}" {% if employee and e.id==employee.id %}selected{% endif %}>{{e.full_name}} — {{e.employee_number}}</option>{% endfor %}</select></label><label>MONTH<input type="month" name="month" value="{{month}}" required></label><button class="btn btn-primary" type="submit">VIEW MONTH</button></form></div>
+{% if employee %}
+<div class="card" style="background:#f8fafb">
+  <div style="display:grid;grid-template-columns:minmax(180px,1fr) minmax(260px,420px);gap:18px;align-items:end">
+    <div><h2 style="margin:0 0 6px">{{employee.full_name}} — {{month}}</h2><p class="muted" style="margin:0">Set a special day rate for this month if needed. This does not change the employee's normal rate.</p></div>
+    <form method="post" action="{{url_for('employee_monthly_rate_update')}}" style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end">
+      <input type="hidden" name="employee_id" value="{{employee.id}}"><input type="hidden" name="month" value="{{month}}">
+      <label style="margin:0">MONTHLY DAY RATE<input type="number" name="day_rate" min="0" step="0.01" value="{{'%.2f'|format(day_rate)}}" required></label>
+      <button class="btn success" type="submit" name="action" value="save">SAVE RATE</button>
+      {% if has_rate_override %}<button class="btn btn2" type="submit" name="action" value="reset">USE STANDARD</button>{% endif %}
+    </form>
+  </div>
+  <div style="margin-top:10px;font-size:12px;color:#5f7080">{% if has_rate_override %}✓ This month is using a manually adjusted rate.{% else %}Using the employee's standard day rate.{% endif %}</div>
+</div>
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px"><div class="stat-card"><div class="stat-label">DAYS WORKED</div><div class="stat-value">{{worked}}</div></div><div class="stat-card"><div class="stat-label">DAY RATE</div><div class="stat-value">R {{'%.2f'|format(day_rate)}}</div></div><div class="stat-card"><div class="stat-label">MONTH TOTAL</div><div class="stat-value">R {{'%.2f'|format(total)}}</div></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><div><h2 style="margin:0">Daily Attendance</h2><p class="muted" style="margin:5px 0 0">You have the final say over every day.</p></div><a class="btn btn-primary" href="{{url_for('employee_report',employee_id=employee.id,month=month)}}">GENERATE MONTHLY PDF</a></div><div style="overflow:auto;margin-top:15px"><table><thead><tr><th>Date</th><th>Day</th><th>Employee Marked</th><th>Final Status</th><th>Admin Action</th></tr></thead><tbody>{% for r in rows %}<tr><td>{{r.work_date}}</td><td>{{r.work_date|datetime_day}}</td><td>{% if r.employee_marked %}✓ Yes{% else %}— No{% endif %}</td><td><strong style="color:{% if r.final_worked %}#16885b{% else %}#b53b32{% endif %}">{% if r.final_worked %}WORKED{% else %}NOT WORKED{% endif %}</strong></td><td><form method="post" action="{{url_for('admin_set_worked',employee_id=employee.id,work_date=r.work_date)}}" style="display:inline"><input type="hidden" name="worked" value="{% if r.final_worked %}0{% else %}1{% endif %}"><button class="btn" type="submit">{% if r.final_worked %}MARK NOT WORKED{% else %}MARK WORKED{% endif %}</button></form></td></tr>{% endfor %}</tbody></table></div></div>
+{% else %}<div class="card"><h2>Select an employee</h2><p class="muted">Choose an employee and month above to see every day and change the final WORKED / NOT WORKED status.</p></div>{% endif %}
+{% endblock %}
