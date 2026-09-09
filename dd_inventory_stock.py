@@ -15,93 +15,94 @@ def _redirect_items(category=None):
 
 def edit_item(item_id):
     c = _a.db()
-    _ensure_qty(c)
-    item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
-    if not item:
+    try:
+        _ensure_qty(c)
+        item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
+        if not item:
+            flash("Part not found.")
+            return _redirect_items()
+
+        if request.method == "POST":
+            try:
+                category_id = request.form.get("category_id") or None
+                category_id = int(category_id) if category_id else None
+                description = (request.form.get("description") or "").strip()
+                code = (request.form.get("code") or "").strip()
+                unit = (request.form.get("unit") or "each").strip() or "each"
+                qty = max(0.0, float(request.form.get("qty") or 0))
+                price = max(0.0, float(request.form.get("price") or 0))
+                if not description:
+                    raise ValueError("Part description is required.")
+                if category_id is not None:
+                    cat = c.execute("SELECT id FROM item_categories WHERE id=? AND active=1", (category_id,)).fetchone()
+                    if not cat:
+                        raise ValueError("Selected category was not found.")
+                c.execute("UPDATE items SET code=?,description=?,price=?,unit=?,qty=?,category_id=? WHERE id=?",
+                          (code, description, price, unit, qty, category_id, item_id))
+                c.commit()
+                flash(f"{description} updated. Price: R {price:,.2f} per {unit}. Stock: {qty:g} {unit}.")
+                return _redirect_items(request.args.get("category") or (str(category_id) if category_id else "all"))
+            except (ValueError, TypeError) as exc:
+                c.rollback()
+                flash(str(exc))
+                return redirect(url_for("edit_item", item_id=item_id, category=request.args.get("category", "all")))
+            except Exception as exc:
+                c.rollback()
+                flash(f"Could not update part: {exc}")
+                return redirect(url_for("edit_item", item_id=item_id, category=request.args.get("category", "all")))
+
+        categories = c.execute("SELECT id,name FROM item_categories WHERE active=1 ORDER BY name").fetchall()
+        return render_template("item_edit.html", item=item, categories=categories)
+    finally:
         c.close()
-        flash("Part not found.")
-        return _redirect_items()
-
-    if request.method == "POST":
-        try:
-            category_id = request.form.get("category_id") or None
-            category_id = int(category_id) if category_id else None
-            description = (request.form.get("description") or "").strip()
-            code = (request.form.get("code") or "").strip()
-            unit = (request.form.get("unit") or "each").strip() or "each"
-            qty = max(0.0, float(request.form.get("qty") or 0))
-            price = max(0.0, float(request.form.get("price") or 0))
-            if not description:
-                raise ValueError("Part description is required.")
-            if category_id is not None:
-                cat = c.execute("SELECT id FROM item_categories WHERE id=? AND active=1", (category_id,)).fetchone()
-                if not cat:
-                    raise ValueError("Selected category was not found.")
-            c.execute("UPDATE items SET code=?,description=?,price=?,unit=?,qty=?,category_id=? WHERE id=?",
-                      (code, description, price, unit, qty, category_id, item_id))
-            c.commit()
-            c.close()
-            flash(f"{description} updated. Price: R {price:,.2f} per {unit}. Stock: {qty:g} {unit}.")
-            return _redirect_items(request.args.get("category") or (str(category_id) if category_id else "all"))
-        except (ValueError, TypeError) as exc:
-            c.rollback()
-            c.close()
-            flash(str(exc))
-            return redirect(url_for("edit_item", item_id=item_id, category=request.args.get("category", "all")))
-        except Exception as exc:
-            c.rollback()
-            c.close()
-            flash(f"Could not update part: {exc}")
-            return redirect(url_for("edit_item", item_id=item_id, category=request.args.get("category", "all")))
-
-    categories = c.execute("SELECT id,name FROM item_categories WHERE active=1 ORDER BY name").fetchall()
-    c.close()
-    return render_template("item_edit.html", item=item, categories=categories)
 
 
 def adjust_stock(item_id):
     c = _a.db()
-    _ensure_qty(c)
-    item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
-    if not item:
-        c.close()
-        flash("Part not found.")
-        return _redirect_items()
     try:
-        mode = request.form.get("mode", "set")
-        if mode == "add":
-            amount = float(request.form.get("amount") or 0)
-            if amount < 0:
-                raise ValueError
-            new_qty = float(item["qty"] or 0) + amount
-        elif mode == "subtract":
-            amount = float(request.form.get("amount") or 0)
-            if amount < 0:
-                raise ValueError
-            new_qty = max(0.0, float(item["qty"] or 0) - amount)
-        else:
-            new_qty = float(request.form.get("qty") or 0)
-            if new_qty < 0:
-                raise ValueError
-        c.execute("UPDATE items SET qty=? WHERE id=?", (new_qty, item_id))
-        c.commit()
-        flash(f"{item['description']} stock updated to {new_qty:g} {item['unit'] or 'each'}.")
-    except (ValueError, TypeError):
-        c.rollback()
-        flash("Please enter a valid stock quantity.")
-    except Exception as exc:
-        c.rollback()
-        flash(f"Could not adjust stock: {exc}")
+        _ensure_qty(c)
+        item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
+        if not item:
+            flash("Part not found.")
+            return _redirect_items()
+        try:
+            mode = request.form.get("mode", "set")
+            if mode == "add":
+                amount = float(request.form.get("amount") or 0)
+                if amount < 0:
+                    raise ValueError
+                new_qty = float(item["qty"] or 0) + amount
+            elif mode == "subtract":
+                amount = float(request.form.get("amount") or 0)
+                if amount < 0:
+                    raise ValueError
+                new_qty = max(0.0, float(item["qty"] or 0) - amount)
+            else:
+                new_qty = float(request.form.get("qty") or 0)
+                if new_qty < 0:
+                    raise ValueError
+            c.execute("UPDATE items SET qty=? WHERE id=?", (new_qty, item_id))
+            c.commit()
+            flash(f"{item['description']} stock updated to {new_qty:g} {item['unit'] or 'each'}.")
+        except (ValueError, TypeError):
+            c.rollback()
+            flash("Please enter a valid stock quantity.")
+        except Exception as exc:
+            c.rollback()
+            flash(f"Could not adjust stock: {exc}")
+        return _redirect_items()
     finally:
         c.close()
-    return _redirect_items()
 
 
 # Register these routes directly on the Flask app. The previous version only
 # defined the functions, which meant Jinja could render neither EDIT nor the
 # stock-adjustment POST endpoints in the live application.
-_ensure_qty(_a.db())
-_c = _a.db(); _ensure_qty(_c); _c.close()
+_c = _a.db()
+try:
+    _ensure_qty(_c)
+finally:
+    _c.close()
 
 if "edit_item" not in _a.app.view_functions:
     _a.app.add_url_rule("/item/<int:item_id>/edit", endpoint="edit_item", view_func=edit_item, methods=["GET", "POST"])
