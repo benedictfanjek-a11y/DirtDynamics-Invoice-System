@@ -74,10 +74,10 @@
 
 <div class="card">
   <div class="table-title"><h2 style="margin:0">{% if selected_category %}{{selected_category.name}} Inventory{% else %}All Active Inventory{% endif %}</h2><span class="count-pill">{{items|length}} item{% if items|length != 1 %}s{% endif %}</span></div>
-  <div class="table-wrap"><table><tr><th>Category</th><th>Part Number</th><th>Description</th><th>Unit</th><th>Price / Unit</th><th>Stock Qty</th><th>Stock Adjustment</th><th>Action</th></tr>
+  <div class="table-wrap"><table><tr><th>Category</th><th>Part Number</th><th>Description</th><th>Price / Unit</th><th>Stock Qty</th><th>Stock Adjustment</th><th>Action</th></tr>
   {% for x in items %}<tr>
   <td><span class="category-badge">{{x.category_name or 'Uncategorised'}}</span></td>
-  <td><b>{{x.code or '—'}}</b></td><td>{{x.description}}</td><td>{{x.unit}}</td><td>R {{'%.2f'|format(x.price)}}</td>
+  <td><b>{{x.code or '—'}}</b></td><td>{{x.description}}</td><td>R {{'%.2f'|format(x.price)}}</td>
   <td><strong class="stock-number {% if (x.qty or 0) <= 0 %}out-of-stock{% endif %}">{{'%.2f'|format(x.qty or 0)}}</strong></td>
   <td>
     <div class="stock-controls">
@@ -108,7 +108,7 @@
     </form>
   </div></td>
   </tr>{% endfor %}
-  {% if not items %}<tr><td colspan="8" class="muted">No active parts in this category yet. Add a part above.</td></tr>{% endif %}
+  {% if not items %}<tr><td colspan="7" class="muted">No active parts in this category yet. Add a part above.</td></tr>{% endif %}
   </table></div>
 </div>
 <style>
