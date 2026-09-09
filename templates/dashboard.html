@@ -1,7 +1,7 @@
 {% extends "base.html" %}{% block content %}
 <div class="page-title"><div><h1>Welcome Back, Benedict</h1><p>Here’s what's happening with your business today.</p></div></div>
 <div class="grid">
-<div class="stat blue"><div class="label">Invoices</div><div class="value">{{counts.invoices}}</div><div class="sub">Total invoices</div></div>
+<div class="stat blue"><div class="label">Invoices</div><div class="value">{{counts.invoices}}</div><div class="sub">Invoices saved</div></div>
 <div class="stat gold"><div class="label">Unpaid</div><div class="value">{{counts.unpaid}}</div><div class="sub">Needs attention</div></div>
 <div class="stat green"><div class="label">Customers</div><div class="value">{{counts.customers}}</div><div class="sub">Total customers</div></div>
 <div class="stat dark"><div class="label">Parts &amp; Services</div><div class="value">{{counts.items}}</div><div class="sub">Active catalogue</div></div>
@@ -13,7 +13,8 @@
 <a class="quick" href="{{url_for('history')}}"><div class="qicon">▣</div><b>View Invoices</b><span>Search invoice history</span></a>
 </div></div>
 <div class="card"><h2 style="margin-top:0">Recent Invoices</h2><table><tr><th>Invoice No.</th><th>Customer</th><th>Date</th><th>Status</th><th></th></tr>
-{% for r in recent %}<tr><td><b>{{r.number}}</b></td><td>{{r.customer}}</td><td>{{r.invoice_date}}</td><td>{{r.status}}</td><td style="text-align:right"><a class="btn btn2" href="{{url_for('view_invoice',iid=r.id)}}">Open</a></td></tr>{% endfor %}
-{% if not recent %}<tr><td colspan="5" class="muted">No invoices yet.</td></tr>{% endif %}</table></div>
+{% for r in recent %}<tr><td><b>{{r.number}}</b></td><td>{{r.customer}}</td><td>{{r.invoice_date}}</td><td>{{r.status}}</td><td style="text-align:right;white-space:nowrap"><a class="btn btn2" href="{{url_for('view_invoice',iid=r.id)}}">Open</a> <form method="post" action="{{url_for('delete_invoice',iid=r.id)}}" style="display:inline" onsubmit="return confirm('Permanently delete {{r.number}}? The invoice will be removed and stock restored. This cannot be undone.');"><button class="btn btn-danger" type="submit">Delete</button></form></td></tr>{% endfor %}
+{% if not recent %}<tr><td colspan="5" class="muted">No invoices saved.</td></tr>{% endif %}</table></div>
 <div class="card" style="background:#0b1b27;color:#fff;border:0"><div style="font-size:13px">YOUR PARTNER IN</div><div style="font-size:25px;font-weight:900;color:#f5a20a">EARTHMOVING SOLUTIONS</div><div style="font-size:12px;margin-top:5px">BUILT BY STRENGTH &nbsp; | &nbsp; DRIVEN BY EXCELLENCE</div></div>
+<style>.btn-danger{background:#ffe8e8;color:#c52323;border:1px solid #f0b8b8;cursor:pointer}</style>
 {% endblock %}
