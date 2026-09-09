@@ -9,19 +9,11 @@ def _ensure_qty(c):
         c.commit()
 
 
-# The loader imports this module after app.py has initialized the database.
-# Add the stock column before /items can render a template containing x.qty.
-_c = _a.db()
-_ensure_qty(_c)
-_c.close()
-
-
 def _redirect_items(category=None):
     return redirect(url_for("items", category=category or request.args.get("category", "all")))
 
 
-def edit_item():
-    item_id = int(request.view_args["item_id"])
+def edit_item(item_id):
     c = _a.db()
     _ensure_qty(c)
     item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
@@ -49,7 +41,7 @@ def edit_item():
                       (code, description, price, unit, qty, category_id, item_id))
             c.commit()
             c.close()
-            flash(f"{description} updated. Stock: {qty:g} {unit}.")
+            flash(f"{description} updated. Price: R {price:,.2f} per {unit}. Stock: {qty:g} {unit}.")
             return _redirect_items(request.args.get("category") or (str(category_id) if category_id else "all"))
         except (ValueError, TypeError) as exc:
             c.rollback()
@@ -67,8 +59,7 @@ def edit_item():
     return render_template("item_edit.html", item=item, categories=categories)
 
 
-def adjust_stock():
-    item_id = int(request.view_args["item_id"])
+def adjust_stock(item_id):
     c = _a.db()
     _ensure_qty(c)
     item = c.execute("SELECT * FROM items WHERE id=? AND active=1", (item_id,)).fetchone()
@@ -80,12 +71,18 @@ def adjust_stock():
         mode = request.form.get("mode", "set")
         if mode == "add":
             amount = float(request.form.get("amount") or 0)
-            new_qty = max(0.0, float(item["qty"] or 0) + amount)
+            if amount < 0:
+                raise ValueError
+            new_qty = float(item["qty"] or 0) + amount
         elif mode == "subtract":
             amount = float(request.form.get("amount") or 0)
+            if amount < 0:
+                raise ValueError
             new_qty = max(0.0, float(item["qty"] or 0) - amount)
         else:
-            new_qty = max(0.0, float(request.form.get("qty") or 0))
+            new_qty = float(request.form.get("qty") or 0)
+            if new_qty < 0:
+                raise ValueError
         c.execute("UPDATE items SET qty=? WHERE id=?", (new_qty, item_id))
         c.commit()
         flash(f"{item['description']} stock updated to {new_qty:g} {item['unit'] or 'each'}.")
@@ -100,28 +97,13 @@ def adjust_stock():
     return _redirect_items()
 
 
-def wrap_items(original):
-    def wrapped():
-        if request.method == "POST" and request.form.get("action", "add_item") == "add_item":
-            before_id = 0
-            c = _a.db()
-            _ensure_qty(c)
-            row = c.execute("SELECT COALESCE(MAX(id),0) AS id FROM items").fetchone()
-            before_id = int(row["id"] or 0)
-            c.close()
-            response = original()
-            try:
-                qty = max(0.0, float(request.form.get("qty") or 0))
-                c = _a.db()
-                _ensure_qty(c)
-                row = c.execute("SELECT id FROM items WHERE id>? ORDER BY id DESC LIMIT 1", (before_id,)).fetchone()
-                if row:
-                    c.execute("UPDATE items SET qty=? WHERE id=?", (qty, row["id"]))
-                    c.commit()
-                c.close()
-            except (ValueError, TypeError):
-                pass
-            return response
-        return original()
-    wrapped.__name__ = "items"
-    return wrapped
+# Register these routes directly on the Flask app. The previous version only
+# defined the functions, which meant Jinja could render neither EDIT nor the
+# stock-adjustment POST endpoints in the live application.
+_ensure_qty(_a.db())
+_c = _a.db(); _ensure_qty(_c); _c.close()
+
+if "edit_item" not in _a.app.view_functions:
+    _a.app.add_url_rule("/item/<int:item_id>/edit", endpoint="edit_item", view_func=edit_item, methods=["GET", "POST"])
+if "adjust_stock" not in _a.app.view_functions:
+    _a.app.add_url_rule("/item/<int:item_id>/stock", endpoint="adjust_stock", view_func=adjust_stock, methods=["POST"])
