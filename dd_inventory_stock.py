@@ -25,19 +25,15 @@ def edit_item(item_id):
             try:
                 category_id = request.form.get("category_id") or None
                 category_id = int(category_id) if category_id else None
-                description = (request.form.get("description") or "").strip()
                 code = (request.form.get("code") or "").strip()
-                unit = (request.form.get("unit") or "each").strip() or "each"
                 qty = max(0.0, float(request.form.get("qty") or 0))
                 price = max(0.0, float(request.form.get("price") or 0))
-                if not description:
-                    raise ValueError("Part description is required.")
                 if category_id is not None and not c.execute("SELECT id FROM item_categories WHERE id=? AND active=1", (category_id,)).fetchone():
                     raise ValueError("Selected category was not found.")
-                c.execute("UPDATE items SET code=?,description=?,price=?,unit=?,qty=?,category_id=? WHERE id=?",
-                          (code, description, price, unit, qty, category_id, item_id))
+                c.execute("UPDATE items SET code=?,price=?,qty=?,category_id=? WHERE id=?",
+                          (code, price, qty, category_id, item_id))
                 c.commit()
-                flash(f"{description} updated. Price: R {price:,.2f} per {unit}. Stock: {qty:g} {unit}.")
+                flash(f"{item['description']} updated. Price: R {price:,.2f} per {item['unit'] or 'each'}. Stock: {qty:g}.")
                 return _redirect_items(request.form.get("category") or request.args.get("category") or (str(category_id) if category_id else "all"))
             except (ValueError, TypeError) as exc:
                 c.rollback(); flash(str(exc))
@@ -109,8 +105,6 @@ def wrap_items(original):
     return wrapped
 
 
-# These routes are also registered here for deployments where the inventory
-# loader is imported directly rather than through gunicorn.conf.py.
 _c = _a.db()
 try:
     _ensure_qty(_c)
