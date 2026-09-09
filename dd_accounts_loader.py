@@ -2,6 +2,7 @@
 from app import app
 import dd_accounts_v2 as ext
 import dd_supplier_edit as supplier_edit
+import dd_inventory_stock as inventory_stock
 
 
 def _register(endpoint, rule, func_name, methods=None, module=None):
@@ -35,4 +36,16 @@ _register('delete_supplier_invoice', '/accounts/purchase/<int:iid>/delete', 'del
 _register('delete_customer_payment', '/accounts/customer-payment/<int:pid>/delete', 'delete_cp', ['POST'])
 _register('delete_supplier_payment', '/accounts/supplier-payment/<int:pid>/delete', 'delete_sp', ['POST'])
 _register('account_statement', '/accounts/statement', 'statement', ['GET'])
+
+# Inventory stock controls. The extension adds the qty column through a safe
+# startup migration and provides edit/adjust endpoints without replacing the
+# existing inventory route logic.
+_register('edit_item', '/item/<int:item_id>/edit', 'edit_item', ['GET', 'POST'], inventory_stock)
+_register('adjust_stock', '/item/<int:item_id>/stock', 'adjust_stock', ['POST'], inventory_stock)
+
+# Add initial stock when the existing /items add-part form supplies qty.
+if 'items' in app.view_functions:
+    app.view_functions['items'] = inventory_stock.wrap_items(app.view_functions['items'])
+
 print('Dirt Dynamics accounting v2 routes registered successfully: /accounts')
+print('Dirt Dynamics inventory stock controls registered successfully: /item/<item_id>/stock')
