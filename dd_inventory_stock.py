@@ -1,5 +1,4 @@
 from flask import render_template, request, redirect, url_for, flash
-import sqlite3
 import app as _a
 
 
@@ -8,6 +7,13 @@ def _ensure_qty(c):
     if "qty" not in cols:
         c.execute("ALTER TABLE items ADD COLUMN qty REAL NOT NULL DEFAULT 0")
         c.commit()
+
+
+# The loader imports this module after app.py has initialized the database.
+# Add the stock column before /items can render a template containing x.qty.
+_c = _a.db()
+_ensure_qty(_c)
+_c.close()
 
 
 def _redirect_items(category=None):
@@ -106,14 +112,13 @@ def wrap_items(original):
             response = original()
             try:
                 qty = max(0.0, float(request.form.get("qty") or 0))
-                if qty:
-                    c = _a.db()
-                    _ensure_qty(c)
-                    row = c.execute("SELECT id FROM items WHERE id>? ORDER BY id DESC LIMIT 1", (before_id,)).fetchone()
-                    if row:
-                        c.execute("UPDATE items SET qty=? WHERE id=?", (qty, row["id"]))
-                        c.commit()
-                    c.close()
+                c = _a.db()
+                _ensure_qty(c)
+                row = c.execute("SELECT id FROM items WHERE id>? ORDER BY id DESC LIMIT 1", (before_id,)).fetchone()
+                if row:
+                    c.execute("UPDATE items SET qty=? WHERE id=?", (qty, row["id"]))
+                    c.commit()
+                c.close()
             except (ValueError, TypeError):
                 pass
             return response
