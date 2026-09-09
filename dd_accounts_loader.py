@@ -11,10 +11,6 @@ def _register(endpoint, rule, func_name, methods=None, module=None):
     if func is None:
         print(f"Dirt Dynamics route skipped: {endpoint} ({func_name} not found)")
         return False
-
-    # Flask can have a view function in view_functions without having the
-    # corresponding URL rule (which was the cause of the /accounts 500).
-    # Only skip add_url_rule when the actual URL rule already exists.
     has_rule = any(r.endpoint == endpoint for r in app.url_map.iter_rules())
     if not has_rule:
         app.add_url_rule(rule, endpoint=endpoint, view_func=func, methods=methods or ['GET'])
@@ -37,15 +33,10 @@ _register('delete_customer_payment', '/accounts/customer-payment/<int:pid>/delet
 _register('delete_supplier_payment', '/accounts/supplier-payment/<int:pid>/delete', 'delete_sp', ['POST'])
 _register('account_statement', '/accounts/statement', 'statement', ['GET'])
 
-# Inventory stock controls. The extension adds the qty column through a safe
-# startup migration and provides edit/adjust endpoints without replacing the
-# existing inventory route logic.
+# Inventory stock controls. dd_inventory_stock creates the qty column and
+# registers the edit and stock-adjustment routes when imported.
 _register('edit_item', '/item/<int:item_id>/edit', 'edit_item', ['GET', 'POST'], inventory_stock)
 _register('adjust_stock', '/item/<int:item_id>/stock', 'adjust_stock', ['POST'], inventory_stock)
-
-# Add initial stock when the existing /items add-part form supplies qty.
-if 'items' in app.view_functions:
-    app.view_functions['items'] = inventory_stock.wrap_items(app.view_functions['items'])
 
 print('Dirt Dynamics accounting v2 routes registered successfully: /accounts')
 print('Dirt Dynamics inventory stock controls registered successfully: /item/<item_id>/stock')
