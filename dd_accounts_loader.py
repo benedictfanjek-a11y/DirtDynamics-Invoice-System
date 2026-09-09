@@ -3,6 +3,7 @@ from app import app
 import dd_accounts_v2 as ext
 import dd_supplier_edit as supplier_edit
 import dd_inventory_stock as inventory_stock
+import dd_dashboard_invoices as dashboard_invoices
 
 
 def _register(endpoint, rule, func_name, methods=None, module=None):
@@ -20,7 +21,8 @@ def _register(endpoint, rule, func_name, methods=None, module=None):
 
 
 _register('new_invoice', '/invoice/new', 'new_invoice_v2', ['GET', 'POST'])
-_register('delete_invoice', '/invoice/<int:iid>/delete', 'delete_invoice_v2', ['POST'])
+# Dashboard invoice deletion is permanent and restores stock.
+_register('delete_invoice', '/invoice/<int:iid>/delete', 'delete_invoice', ['POST'], dashboard_invoices)
 _register('edit_invoice', '/invoice/<int:iid>/edit', 'edit_invoice', ['GET', 'POST'])
 _register('accounts', '/accounts', 'accounts', ['GET'])
 _register('add_customer_payment', '/accounts/customer', 'add_cp', ['POST'])
@@ -33,6 +35,9 @@ _register('delete_customer_payment', '/accounts/customer-payment/<int:pid>/delet
 _register('delete_supplier_payment', '/accounts/supplier-payment/<int:pid>/delete', 'delete_sp', ['POST'])
 _register('account_statement', '/accounts/statement', 'statement', ['GET'])
 
+# Replace the dashboard view so its invoice tile counts only invoices still saved.
+_register('dashboard', '/', 'dashboard', ['GET'], dashboard_invoices)
+
 # Inventory stock controls. dd_inventory_stock creates the qty column and
 # registers the edit and stock-adjustment routes when imported.
 _register('edit_item', '/item/<int:item_id>/edit', 'edit_item', ['GET', 'POST'], inventory_stock)
@@ -40,3 +45,4 @@ _register('adjust_stock', '/item/<int:item_id>/stock', 'adjust_stock', ['POST'],
 
 print('Dirt Dynamics accounting v2 routes registered successfully: /accounts')
 print('Dirt Dynamics inventory stock controls registered successfully: /item/<item_id>/stock')
+print('Dirt Dynamics dashboard invoice controls registered successfully: permanent delete + saved count')
