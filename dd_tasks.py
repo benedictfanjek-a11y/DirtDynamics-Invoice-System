@@ -156,16 +156,36 @@ def employee_task_toggle(task_id):
         if not task:
             flash("Task not found.")
             return redirect(url_for("employee_portal"))
+        now = datetime.now().isoformat(timespec="seconds")
         if task["status"] == "COMPLETED":
-            c.execute("UPDATE employee_tasks SET status='PENDING',completed_at=NULL,updated_at=? WHERE id=?", (datetime.now().isoformat(timespec="seconds"), task_id))
+            c.execute("UPDATE employee_tasks SET status='PENDING',completed_at=NULL,updated_at=? WHERE id=?", (now, task_id))
         else:
-            c.execute("UPDATE employee_tasks SET status='COMPLETED',completed_at=?,updated_at=? WHERE id=?", (datetime.now().isoformat(timespec="seconds"), datetime.now().isoformat(timespec="seconds"), task_id))
+            c.execute("UPDATE employee_tasks SET status='COMPLETED',completed_at=?,updated_at=? WHERE id=?", (now, now, task_id))
         c.commit()
     except Exception as exc:
         c.rollback(); flash(f"Could not update task: {exc}")
     finally:
         c.close()
     return redirect(url_for("employee_portal"))
+
+
+def employee_portal_with_tasks():
+    emp = _a.employee_record_for_user(_a.session.get("user_id"))
+    if not emp:
+        return redirect(url_for("login"))
+    today = date.today()
+    month = today.strftime("%Y-%m")
+    c = _a.db()
+    try:
+        _a.ensure_day(c, emp["id"], today.isoformat())
+        record = c.execute("SELECT * FROM employee_attendance_days WHERE employee_id=? AND work_date=?", (emp["id"], today.isoformat())).fetchone()
+        days = c.execute("SELECT COUNT(*) AS n FROM employee_attendance_days WHERE employee_id=? AND substr(work_date,1,7)=? AND final_worked=1", (emp["id"], month)).fetchone()["n"]
+        _ensure_tasks(c)
+        tasks = c.execute("SELECT * FROM employee_tasks WHERE employee_id=? ORDER BY CASE WHEN status='PENDING' THEN 0 ELSE 1 END, CASE WHEN due_date IS NULL OR due_date='' THEN 1 ELSE 0 END, due_date, id DESC", (emp["id"],)).fetchall()
+        c.commit()
+        return render_template("employee_portal.html", employee=emp, today=today.isoformat(), today_record=record, days_worked=days, tasks=tasks)
+    finally:
+        c.close()
 
 
 _c = _a.db()
