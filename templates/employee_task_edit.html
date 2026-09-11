@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title"><div><h1>Edit Employee Task</h1><p>Update the task assignment or instructions.</p></div><a class="btn btn2" href="{{url_for('employee_tasks')}}">← Tasks</a></div>
+<form method="post" class="card"><div class="row">
+<label>Task Description *<textarea name="description" rows="4" required>{{task.description}}</textarea></label>
+<label>Assign To *<select name="employee_id" required>{% for e in employees %}<option value="{{e.id}}" {% if task.employee_id==e.id %}selected{% endif %}>{{e.full_name}}{% if e.employee_number %} — {{e.employee_number}}{% endif %}</option>{% endfor %}</select></label>
+<label>Due Date<input name="due_date" type="date" value="{{task.due_date or ''}}"></label>
+<label>Priority<select name="priority"><option {% if task.priority=='Normal' %}selected{% endif %}>Normal</option><option {% if task.priority=='High' %}selected{% endif %}>High</option><option {% if task.priority=='Low' %}selected{% endif %}>Low</option></select></label>
+<label style="grid-column:1/-1">Notes<textarea name="notes" rows="3">{{task.notes or ''}}</textarea></label>
+</div><button class="success" type="submit">SAVE CHANGES</button> <a class="btn btn2" href="{{url_for('employee_tasks')}}">CANCEL</a></form>
+{% endblock %}
