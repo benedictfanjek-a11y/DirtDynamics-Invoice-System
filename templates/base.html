@@ -17,6 +17,9 @@ html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;backgr
 .side-nav{padding:24px 0;display:flex;flex-direction:column;gap:4px}
 .side-nav a{color:#f4f7f9;text-decoration:none;padding:14px 28px;font-size:15px;display:flex;gap:14px;align-items:center;border-left:4px solid transparent}
 .side-nav a:hover,.side-nav a.active{background:linear-gradient(90deg,#6e4511,#3e2a12);color:#ffb31d;border-left-color:var(--gold)}
+.side-nav .subnav{display:flex;flex-direction:column;gap:2px;margin:-2px 0 5px 18px;border-left:1px solid #29404e}
+.side-nav .subnav a{padding:9px 18px 9px 22px;font-size:13px;color:#cbd5dc;border-left:0}
+.side-nav .subnav a:hover,.side-nav .subnav a.active{background:#102633;color:#ffb31d;border-left:3px solid var(--gold)}
 .side-icon{width:23px;text-align:center;font-size:17px}
 .side-bottom{margin-top:auto;padding:24px;text-align:center;border-top:1px solid #1d303d;color:#fff;font-size:14px;font-weight:800;line-height:1.55}.side-bottom .gold{color:#f5a20a}
 .topbar{grid-column:2;background:linear-gradient(110deg,#07131c,#0c1c28);color:#fff;border-bottom:3px solid var(--gold);display:flex;align-items:center;padding:8px 20px;gap:14px}
@@ -37,7 +40,7 @@ button,.btn{display:inline-block;border:0;border-radius:8px;padding:11px 16px;ba
 .alert{padding:11px 14px;background:#e2f7ec;border-left:4px solid #138a5b;border-radius:7px;margin-bottom:14px}.muted{color:var(--muted)}
 @media(max-width:1200px){.app{grid-template-columns:220px minmax(0,1fr)}.top-brand{min-width:220px}.top-nav a{padding:9px 7px;font-size:10px}.top-brand .name{font-size:19px}.top-brand .sub{font-size:8px}.search{width:150px}.grid,.quickgrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:850px){.top-brand{min-width:0}.top-brand .name{font-size:17px}.top-brand .sub{display:none}.top-nav a span{display:none}.top-nav a{font-size:16px;padding:9px}.search{display:none}}
-@media(max-width:700px){.app{display:block}.sidebar{min-height:auto}.side-logo{padding:10px}.side-logo img{width:130px;height:95px}.side-nav{flex-direction:row;overflow:auto;padding:8px}.side-nav a{white-space:nowrap;padding:10px 12px;border-left:0;border-bottom:3px solid transparent}.side-nav a.active{border-left:0;border-bottom-color:var(--gold)}.side-bottom{display:none}.topbar{padding:10px 14px}.top-brand img{width:52px;height:48px}.top-brand .name{font-size:18px}.top-brand .sub{display:none}.top-nav{margin-left:auto}.user{margin-left:0}.user div:not(.avatar){display:none}main{padding:20px 12px}.grid,.quickgrid,.row{grid-template-columns:1fr}footer{display:none}}
+@media(max-width:700px){.app{display:block}.sidebar{min-height:auto}.side-logo{padding:10px}.side-logo img{width:130px;height:95px}.side-nav{flex-direction:row;overflow:auto;padding:8px}.side-nav a{white-space:nowrap;padding:10px 12px;border-left:0;border-bottom:3px solid transparent}.side-nav a.active{border-left:0;border-bottom-color:var(--gold)}.side-nav .subnav{flex-direction:row;margin:0;border:0;gap:0}.side-nav .subnav a{padding:10px 12px;border-bottom:3px solid transparent}.side-nav .subnav a:hover,.side-nav .subnav a.active{border-left:0;border-bottom-color:var(--gold)}.side-bottom{display:none}.topbar{padding:10px 14px}.top-brand img{width:52px;height:48px}.top-brand .name{font-size:18px}.top-brand .sub{display:none}.top-nav{margin-left:auto}.user{margin-left:0}.user div:not(.avatar){display:none}main{padding:20px 12px}.grid,.quickgrid,.row{grid-template-columns:1fr}footer{display:none}}
 @media print{.sidebar,.topbar,footer,.no-print{display:none!important}main{padding:0}.invoice{box-shadow:none;border-top:0}}
 </style>
 </head>
@@ -57,7 +60,11 @@ button,.btn{display:inline-block;border:0;border-radius:8px;padding:11px 16px;ba
     <a href="{{url_for('items')}}"><span class="side-icon">▣</span>Inventory</a>
     <a href="{{url_for('accounts')}}"><span class="side-icon">▣</span>Accounts</a>
     <a href="{{url_for('employees_admin')}}"><span class="side-icon">◷</span>Employees</a>
-    <a href="{{url_for('employees_attendance')}}"><span class="side-icon">◫</span>Employee Attendance</a>
+    <div class="subnav">
+      <a href="{{url_for('employees_admin')}}"><span class="side-icon">•</span>Employee List</a>
+      <a href="{{url_for('employee_tasks')}}"><span class="side-icon">✓</span>Tasks</a>
+      <a href="{{url_for('employees_attendance')}}"><span class="side-icon">◫</span>Attendance</a>
+    </div>
     <a href="{{url_for('history')}}"><span class="side-icon">▣</span>History</a>
     <a href="{{url_for('settings')}}"><span class="side-icon">⚙</span>Settings</a>
     <a href="{{url_for('admin_users')}}"><span class="side-icon">♙</span>User Management</a>
