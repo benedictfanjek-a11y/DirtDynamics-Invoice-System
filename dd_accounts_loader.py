@@ -4,6 +4,7 @@ import dd_accounts_v2 as ext
 import dd_supplier_edit as supplier_edit
 import dd_inventory_stock as inventory_stock
 import dd_dashboard_invoices as dashboard_invoices
+import dd_tasks as tasks
 
 
 def _register(endpoint, rule, func_name, methods=None, module=None):
@@ -43,6 +44,15 @@ _register('dashboard', '/', 'dashboard', ['GET'], dashboard_invoices)
 _register('edit_item', '/item/<int:item_id>/edit', 'edit_item', ['GET', 'POST'], inventory_stock)
 _register('adjust_stock', '/item/<int:item_id>/stock', 'adjust_stock', ['POST'], inventory_stock)
 
+# Employee task management. Tasks live under Employees and are also shown
+# in each employee's existing portal.
+_register('employee_tasks', '/employees/tasks', 'employee_tasks', ['GET'], tasks)
+_register('employee_task_add', '/employees/tasks/add', 'employee_task_add', ['POST'], tasks)
+_register('employee_task_edit', '/employees/tasks/<int:task_id>/edit', 'employee_task_edit', ['GET', 'POST'], tasks)
+_register('employee_task_delete', '/employees/tasks/<int:task_id>/delete', 'employee_task_delete', ['POST'], tasks)
+_register('employee_task_toggle', '/employee/tasks/<int:task_id>/toggle', 'employee_task_toggle', ['POST'], tasks)
+
 print('Dirt Dynamics accounting v2 routes registered successfully: /accounts')
 print('Dirt Dynamics inventory stock controls registered successfully: /item/<item_id>/stock')
 print('Dirt Dynamics dashboard invoice controls registered successfully: permanent delete + saved count')
+print('Dirt Dynamics employee task controls registered successfully: /employees/tasks')
