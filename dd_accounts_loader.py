@@ -51,6 +51,9 @@ _register('employee_task_add', '/employees/tasks/add', 'employee_task_add', ['PO
 _register('employee_task_edit', '/employees/tasks/<int:task_id>/edit', 'employee_task_edit', ['GET', 'POST'], tasks)
 _register('employee_task_delete', '/employees/tasks/<int:task_id>/delete', 'employee_task_delete', ['POST'], tasks)
 _register('employee_task_toggle', '/employee/tasks/<int:task_id>/toggle', 'employee_task_toggle', ['POST'], tasks)
+# Keep the existing employee portal URL, but supply its normal attendance data
+# plus the employee's assigned tasks.
+_register('employee_portal', '/employee', 'employee_portal_with_tasks', ['GET'], tasks)
 
 print('Dirt Dynamics accounting v2 routes registered successfully: /accounts')
 print('Dirt Dynamics inventory stock controls registered successfully: /item/<item_id>/stock')
