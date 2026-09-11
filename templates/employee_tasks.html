@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block content %}
+<div class="page-title"><div><h1>Employee Tasks</h1><p>Assign and manage tasks for your employees.</p></div></div>
+<div class="card"><h2>Add New Task</h2><form method="post" action="{{url_for('employee_task_add')}}" class="row">
+<label>Task Description *<textarea name="description" rows="3" required placeholder="Enter task description..."></textarea></label>
+<label>Assign To *<select name="employee_id" required><option value="">Select Employee</option>{% for e in employees %}<option value="{{e.id}}">{{e.full_name}}{% if e.employee_number %} — {{e.employee_number}}{% endif %}</option>{% endfor %}</select></label>
+<label>Due Date<input name="due_date" type="date"></label>
+<label>Priority<select name="priority"><option>Normal</option><option>High</option><option>Low</option></select></label>
+<label style="grid-column:1/-1">Notes (optional)<textarea name="notes" rows="2" placeholder="Additional instructions..."></textarea></label>
+<div><button class="btn btn-primary" type="submit">SAVE TASK</button></div>
+</form></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Tasks</h2><form method="get" style="display:flex;gap:8px;flex-wrap:wrap"><select name="employee_id"><option value="">All Employees</option>{% for e in employees %}<option value="{{e.id}}" {% if selected_employee==e.id|string %}selected{% endif %}>{{e.full_name}}</option>{% endfor %}</select><select name="status"><option value="">All Statuses</option><option value="PENDING" {% if selected_status=='PENDING' %}selected{% endif %}>Pending</option><option value="COMPLETED" {% if selected_status=='COMPLETED' %}selected{% endif %}>Completed</option></select><button class="btn" type="submit">FILTER</button></form></div>
+<div style="overflow:auto;margin-top:15px"><table class="table"><thead><tr><th>Task</th><th>Assigned To</th><th>Due Date</th><th>Priority</th><th>Status</th><th>Completed</th><th>Actions</th></tr></thead><tbody>
+{% for t in tasks %}<tr>
+<td><strong>{{t.description}}</strong>{% if t.notes %}<div class="muted" style="margin-top:4px">{{t.notes}}</div>{% endif %}</td><td>{{t.full_name}}</td><td>{{t.due_date or '—'}}</td>
+<td><span class="task-{{t.priority|lower}}">{{t.priority}}</span></td><td><span class="status-{{t.status|lower}}">{{'Completed' if t.status=='COMPLETED' else 'Pending'}}</span></td><td>{{t.completed_at or '—'}}</td>
+<td style="white-space:nowrap"><a class="btn btn2" href="{{url_for('employee_task_edit',task_id=t.id)}}">EDIT</a> <form method="post" action="{{url_for('employee_task_delete',task_id=t.id)}}" style="display:inline" onsubmit="return confirm('Delete this task permanently?');"><button class="btn danger" type="submit">DELETE</button></form></td>
+</tr>{% else %}<tr><td colspan="7">No tasks found.</td></tr>{% endfor %}</tbody></table></div></div>
+<style>.task-low,.task-normal,.task-high,.status-pending,.status-completed{display:inline-block;padding:5px 9px;border-radius:8px;font-weight:800;font-size:12px}.task-low{background:#dff5e5;color:#17613f}.task-normal{background:#e3eefc;color:#1556a8}.task-high{background:#ffe0dc;color:#b42318}.status-pending{background:#fff0bd;color:#765b00}.status-completed{background:#dff5e5;color:#17613f}.danger{background:#e54848;color:#fff}</style>
+{% endblock %}
